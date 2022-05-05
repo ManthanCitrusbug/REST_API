@@ -1,0 +1,93 @@
+{% extends 'index.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body class="d-block">
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
+        <a class="navbar-brand" href="#">Home Page</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'library_admin:add-book' %}">Add Book</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'author:add-author' %}">Add Author</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Issue Book
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="{% url 'library_admin:issue-book' %}">Issue Book Form</a></li>
+                <li><a class="dropdown-item" href="{% url 'library_admin:issued-books-list' %}">Issued Books List</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Categoris
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for obj in category %}
+                <li><a class="dropdown-item category" pid="{{obj.id}}">{{obj.category_name}}</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'library_admin:admin-logout' %}">Log out</a>
+            </li>
+          </ul>
+        </div>
+        <form class="d-flex" method="GET">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchinput">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="searchbtn">Search</button>
+        </form>
+      </nav>
+    {% endblock navbar %}
+    
+    {% block content %}
+      <h1 class="text-center mt-4">Authors List</h1><hr>
+    <div class="m-5">
+      <table class="table">
+        <thead class="bg-dark text-white">
+            <th scope="col">id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Book</th>
+            <th scope="col">Actions</th>
+        </thead>
+        <tbody>
+            {% for author in authors %}
+            <tr>
+                <th scope="row">{{author.id}}</th>
+                <td>{{author.name}}</td>
+                <td>{{author.description | truncatechars:55}}</td>
+                <td>{% for i in author.book.all %} - {{i.name}}<br> {% endfor %}</td>
+                <td>
+                    <a href="{% url 'author:author-delete' author.id %}" class="btn btn-danger">Delete</a>
+                    <a href="{% url 'author:author-edit' author.id %}" class="btn btn-info">Edit</a>
+                    <a href="{% url 'author:author-details' author.id %}" class="btn btn-secondary">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center"><a href="{% url 'library_admin:admin-dashboard' %}" class="btn btn-lg btn-success">Available Books</a></div>
+    {% endblock content %}
+
+</body>
+</html>

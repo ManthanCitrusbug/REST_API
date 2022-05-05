@@ -1,0 +1,73 @@
+{% extends 'index.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    {% block navbar %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
+        <a class="navbar-brand" href="{% url 'library_admin:admin-dashboard' %}">Home Page</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'author:add-author' %}">Add Author</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Categoris
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for obj in category %}
+                <li><a class="dropdown-item category" pid="{{obj.id}}">{{obj.category_name}}</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="3">Log out</a>
+            </li>
+          </ul>
+        </div>
+        <form class="d-flex" method="GET">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchinput">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="searchbtn">Search</button>
+        </form>
+      </nav>
+    {% endblock navbar %}
+    
+    {% block content %}
+    <h1 class="text-center my-5">Add a Book</h1>
+    <form action="" method="POST" class="form-control text-center mb-5" novalidate onsubmit="return book_validate()">
+        {% csrf_token %}
+        <label for="">Book Name :</label><br>
+        {{form.name}}
+        <span id="error_product_name" class="text-danger"></span><br>
+        <label for="">Book Discription :</label><br>
+        {{form.description}}
+        <span id="error_product_disc" class="text-danger"></span><br>
+        <label for="">Book Category :</label><br>
+        {{form.category}}
+        <span id="error_product_category" class="text-danger"></span><br><br>
+        <label for="">Book Quantity :</label><br>
+        {{form.quantity}}
+        <span id="error_quantity" class="text-danger"></span><br><br>
+        {% if form.author %}
+        <label for="">Book Author :</label><br>
+        {{form.author}}
+        <span id="error_quantity" class="text-danger"></span><br><br>
+        {% endif %}
+        <input type="submit" value="Submit" class="btn btn-success">
+    </form>
+    {% endblock content %}
+
+</body>
+</html>

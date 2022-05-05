@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <script defer src="{% static 'js/bootstrap.js' %}"></script>
+    <script defer src="{% static 'js/validation.js' %}"></script>
+    <script defer src="{% static 'js/jquery.js' %}"></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+</head>
+<body>
+    {% block navbar %}
+    {% endblock navbar %}
+
+    {% block content %} 
+    <h1 class="text-center">Admin Login</h1><br>
+    <h4 class="text-center"><a href="{% url 'library_admin:admin-register' %}">Register</a></h4><br>
+    <h4 class="text-center"><a href="{% url 'library_admin:admin-login' %}">login</a></h4>
+    {% endblock content %}
+
+    {% block pagination %}
+    {% endblock pagination %}
+</body>
+</html>

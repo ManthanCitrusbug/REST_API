@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script defer src="{% static 'js/validation.js' %}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    {% block navbar %}
+    {% endblock navbar %}
+    
+    {% block content %}
+    <h1 class="text-center my-5">Login</h1>
+    <form action="" method="POST" class="form-control text-center" novalidate onsubmit="return login_validate()">
+        {% csrf_token %}
+        <label for="">Username :</label><br><br>
+        {{form.username}}
+        <span id="error_email" class="text-danger"></span><br><br>
+        <label for="">Password :</label><br><br>
+        {{form.password}}
+        <span id="error_password" class="text-danger"></span><br><br>
+        <input type="submit" value="Submit" class="btn btn-success"><br><br>
+        For register <a href="{% url 'library_admin:admin-register' %}" class="text-muted">Register</a> or to <a href="{% url 'library_admin:index' %}" class="text-muted">homepage</a><br><br>
+    </form>
+    {% endblock content %}
+
+</body>
+</html>
