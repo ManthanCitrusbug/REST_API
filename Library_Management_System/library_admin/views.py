@@ -1,9 +1,6 @@
-from .serializers import BookSerializer, Issued_bookSerialize
-from rest_framework import serializers
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.http import JsonResponse
 from library_admin.forms import AddBookForm, AdminLoginForm, AdminRegisterform, Issue_Book_Form, Issue_Book_Edit_Form, EditBookForm
 from django.contrib.auth.models import User
 from django.views.generic import CreateView, TemplateView, ListView, UpdateView, DetailView, DeleteView

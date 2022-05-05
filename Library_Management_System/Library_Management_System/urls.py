@@ -15,21 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from api import views
-
-# router = DefaultRouter()
-
-# router.register('book-api', views.BookListAPIView, basename='book-api')
-# router.register('issued-book-api', views.IssuedBookAPIView, basename='issued-book-api')
-# router.register('author-api', views.AuthorListAPIView, basename='author-api')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('library/', include('library_admin.urls')),
-    # path('library/', include('library_admin.APIurls')),
-    # path('', include(router.urls)),
-    path('api/', include('api.urls')),
+    path('api/v1/', include('api.urls')),
     path('author/', include('author.urls')),
     path('auth/', include('rest_framework.urls')),
 ]

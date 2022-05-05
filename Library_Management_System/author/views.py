@@ -1,14 +1,11 @@
-from multiprocessing import context
-from pyexpat import model
-from re import template
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, TemplateView, ListView, UpdateView, DetailView
+from django.views.generic import CreateView, ListView, UpdateView, DetailView
 from .forms import AddAuthorForm
 from library_admin.models import Book
 from .models import Author
-# Create your views here.
+
 
 class AddAuthorView(CreateView):
     model = Author
