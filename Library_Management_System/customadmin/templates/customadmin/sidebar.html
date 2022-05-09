@@ -1,0 +1,149 @@
+{% load static %}
+{% load admin_extras %}
+
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+
+            <li class="nav-header">
+                <a href="{% url 'customadmin:dashboard' %}">
+                    <img class="nav-image" src="{% static 'assets/images/logo.png' %}" width="100%" />
+                </a>
+                {% comment %} <div class="dropdown profile-element">
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        <span class="clear">
+                            <span class="block m-t-xs">
+                                <strong class="font-bold">
+                                    {% if request.user.is_authenticated %}{{ request.user }} {% endif%}
+                                </strong>
+                            </span>
+                            <span class="text-muted text-xs block">Co-Founder
+                                <b class="caret"></b>
+                            </span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        {% if request.user.is_authenticated %}
+                        <li>
+                            <a href="{% url 'auth:auth_logout' %}" class="nav-label">Logout</a>
+                        </li>
+                        {% endif%}
+                    </ul>
+                </div> {% endcomment %}
+                <div class="logo-element">
+                    UC
+                </div>
+            </li>
+
+
+
+            {% if perms.users or request.user.is_staff %}
+            <li {% if 'users/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:user-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Users</span>
+                </a>
+            </li>
+            <li {% if 'testimonials/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:testimonial-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Testimonials</span>
+                </a>
+            </li>
+            <li {% if 'service-categories/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:servicecategory-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Service Categories</span>
+                </a>
+            </li>
+            <li {% if 'inquiry-types/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:inquirytype-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Inquiry Types</span>
+                </a>
+            </li>
+            <li {% if 'inquiry/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:inquiry-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Inquiries</span>
+                </a>
+            </li>
+            <li {% if 'phone-' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:phone-codes-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Phone Codes</span>
+                </a>
+            </li>
+            <li {% if 'foundation-' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:foundationcode-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Foundation Codes</span>
+                </a>
+            </li>
+            <li {% if 'family-' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:familycode-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Family Codes</span>
+                </a>
+            </li>
+            <li {% if 'social-' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:socialcode-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Social Codes</span>
+                </a>
+            </li>
+            <li {% if 'other-' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:othercode-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Other Codes</span>
+                </a>
+            </li>
+            <li {% if 'number-' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:numbercode-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Number Codes</span>
+                </a>
+            </li>
+            <li {% if '/product/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:shopproduct-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Shop Products</span>
+                </a>
+            </li>
+            <li {% if 'time-slots/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:time-slots-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Service Time Slots</span>
+                </a>
+            </li>
+            <li {% if 'service/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:service-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Services</span>
+                </a>
+            </li>
+            <li {% if 'purchased-' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:purchasedproduct-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Purchased Products</span>
+                </a>
+            </li>
+            <li {% if '-booking' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:bookedservice-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Booked Services</span>
+                </a>
+            </li>
+            <li {% if 'categoryimage/' in request.path %}class="active" {% endif %}>
+                <a href="{% url 'customadmin:categoryimage-list' %}">
+                    <i class="fa fa-user fa-fw fa-2x"></i>
+                    <span class="nav-label">Category Image</span>
+                </a>
+            </li>
+            {% endif %}
+
+
+        </ul>
+
+    </div>
+</nav>

@@ -10,10 +10,15 @@ from rest_framework.authtoken.models import Token
 
 
 class UserSerializer(serializers.ModelSerializer):
+    token = serializers.SerializerMethodField('get_token_key')
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password']
+        fields = ['username', 'first_name', 'last_name', 'email', 'token', 'password']
         extra_kwargs = {'password' : {'write_only' : True}}
+
+    def get_token_key(self, obj):
+        token = Token.objects.get_or_create(user_id=obj.id)[0].key
+        return token
 
     def create(self, validated_data):
         user = super().create(validated_data)
@@ -25,7 +30,14 @@ class UserSerializer(serializers.ModelSerializer):
     def create_token(sender, instance, created, **kwargs):
         if created:
             Token.objects.create(user=instance)
+
         return instance
+
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
 
 
 class BookSerializer(serializers.ModelSerializer):

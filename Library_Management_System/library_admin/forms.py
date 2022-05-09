@@ -2,6 +2,8 @@ from datetime import date
 from asyncio.windows_events import NULL
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
 from author.models import Author
 from library_admin.models import Book, Issued_Book
 
@@ -77,13 +79,13 @@ class AddBookForm(forms.ModelForm):
     def save(self, commit=True):
         user = super(AddBookForm, self).save(commit=False)
         data = self.cleaned_data
+        x = Book.objects.get(name=user.name, deleted=False)
+        author_name = data['author']
+        for i in author_name:
+            author = Author.objects.get(name=i)
+            author.book.add(x)
         if commit:
             user.save()
-            x = Book.objects.get(name=user.name, deleted=False)
-            author_name = data['author']
-            for i in author_name:
-                author = Author.objects.get(name=i)
-                author.book.add(x)
         return user
 
 
@@ -153,10 +155,10 @@ class Issue_Book_Form(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         qun = Book.objects.get(name=user.book)
+        if qun.quantity>0:
+            x = qun.quantity - 1
+            Book.objects.filter(name=user.book).update(quantity=x)
         if commit:
-            if qun.quantity>0:
-                x = qun.quantity - 1
-                Book.objects.filter(name=user.book).update(quantity=x)
                 user.save()
         return user
 
@@ -205,11 +207,11 @@ class Issue_Book_Edit_Form(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         qun = Book.objects.get(name=user.book)
+        if user.return_date != None:
+            x = qun.quantity + 1
+            Book.objects.filter(name=user.book).update(quantity=x)
+        else:
+            pass
         if commit:
-            if user.return_date != None:
-                x = qun.quantity + 1
-                Book.objects.filter(name=user.book).update(quantity=x)
-            else:
-                pass
             user.save()
         return user
