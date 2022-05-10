@@ -30,14 +30,22 @@ class UserSerializer(serializers.ModelSerializer):
     def create_token(sender, instance, created, **kwargs):
         if created:
             Token.objects.create(user=instance)
-
         return instance
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['email', 'password']
+    
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
+        if not email:
+            raise serializers.ValidationError("Enter the email.")
+        if not password:
+            raise serializers.ValidationError("Enter the password.") 
+        return data
 
 
 class BookSerializer(serializers.ModelSerializer):

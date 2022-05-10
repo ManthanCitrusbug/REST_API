@@ -18,8 +18,8 @@ from django.views.generic import (
 from django.views.generic.edit import FormView
 from django.views.generic.dates import TodayArchiveView
 from django.views.generic.dates import DayArchiveView
-from extra_views import CreateWithInlinesView, NamedFormsetsMixin, UpdateWithInlinesView
-from multi_form_view import MultiFormView, MultiModelFormView
+# from extra_views import CreateWithInlinesView, NamedFormsetsMixin, UpdateWithInlinesView
+# from multi_form_view import MultiFormView, MultiModelFormView
 
 from ..mixins import HasPermissionsMixin, ModelOptsMixin, SuccessMessageMixin
 from ..utils import admin_urlname, get_deleted_objects
@@ -298,11 +298,11 @@ class MyCancelView(
 class MyNewFormsetCreateView(
     LoginRequiredMixin,
     PermissionRequiredMixin,
-    NamedFormsetsMixin,
+    # NamedFormsetsMixin,
     SuccessMessageMixin,
     ModelOptsMixin,
     HasPermissionsMixin,
-    CreateWithInlinesView,
+    # CreateWithInlinesView,
 ):
     """CreateView CBV with CreateWithInlinesView."""
 
@@ -327,11 +327,11 @@ class MyNewFormsetCreateView(
 class MyNewFormsetUpdateView(
     LoginRequiredMixin,
     PermissionRequiredMixin,
-    NamedFormsetsMixin,
+    # NamedFormsetsMixin,
     SuccessMessageMixin,
     ModelOptsMixin,
     HasPermissionsMixin,
-    UpdateWithInlinesView,
+    # UpdateWithInlinesView,
 ):
     """UpdateView CBV with UpdateWithInlinesView."""
 
@@ -361,7 +361,7 @@ class MyMultiModelFormView(
     SuccessMessageMixin,
     ModelOptsMixin,
     HasPermissionsMixin,
-    MultiModelFormView,
+    # MultiModelFormView,
 ):
 
     model = None

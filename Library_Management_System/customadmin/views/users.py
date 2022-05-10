@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.views import View
 from customadmin.mixins import HasPermissionsMixin
 from customadmin.views.generic import (
     MyCreateView,
@@ -8,6 +9,9 @@ from customadmin.views.generic import (
     MyLoginRequiredView,
     MyUpdateView,
 )
+from library_admin.forms import AdminLoginForm
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect
 from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -15,11 +19,9 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views.generic import TemplateView, DetailView
 from django_datatables_too.mixins import DataTableMixin
-
-from ..forms import UserChangeForm, UserCreationForm
+from library_admin.forms import AdminRegisterform
+# from ..forms import UserChangeForm, UserCreationForm
 from django.shortcuts import reverse, render
-
-# from customadmin.models import User, PurchasedProduct, BookedService
 from django.contrib.auth.models import User
 
 import csv
@@ -61,9 +63,28 @@ class UserDetailView(MyDetailView):
 
     def get(self, request, pk):
         self.context['user_detail'] = User.objects.filter(pk=pk).first()
-        self.context['purchased_products'] = PurchasedProduct.objects.filter(user=pk)
-        self.context['booked_services'] = BookedService.objects.filter(user=pk)
+        # self.context['purchased_products'] = PurchasedProduct.objects.filter(user=pk)
+        # self.context['booked_services'] = BookedService.objects.filter(user=pk)
         return render(request, self.template_name, self.context)
+
+
+class UserLoginView(View):
+    def post(self,request):
+        form = AdminLoginForm(request.POST)
+        user_name = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=user_name,password=password)
+        print(user)
+        if user is not None: 
+            print(user)
+            login(request, user)
+            return redirect('customadmin:dashboard')
+        else:
+            return render(request,'admin_login.html',{'form':form}) 
+
+    def get(self,request):
+        form = AdminLoginForm()
+        return render(request,'admin_login.html',{'form':form})
 
 
 
@@ -72,8 +93,9 @@ class IndexView(LoginRequiredMixin, TemplateView):
     context = {}
 
     def get(self, request):
-        self.context['user_count']=User.objects.all().exclude(is_staff=True).count()
+        self.context['user_count']=User.objects.all().count()
         return render(request, self.template_name, self.context)
+    
 
 # -----------------------------------------------------------------------------
 # Users
@@ -98,7 +120,7 @@ class UserCreateView(MyCreateView):
     """View to create User"""
 
     model = User
-    form_class = UserCreationForm
+    form_class = AdminRegisterform
     template_name = "customadmin/adminuser/user_form.html"
     permission_required = ("customadmin.add_user",)
 
@@ -111,22 +133,22 @@ class UserCreateView(MyCreateView):
         # opts = self.model._meta
         return reverse("customadmin:user-list")
 
-class UserUpdateView(MyUpdateView):
-    """View to update User"""
+# class UserUpdateView(MyUpdateView):
+#     """View to update User"""
 
-    model = User
-    form_class = UserChangeForm
-    template_name = "customadmin/adminuser/user_form_update.html"
-    permission_required = ("customadmin.change_user",)
+#     model = User
+#     form_class = UserChangeForm
+#     template_name = "customadmin/adminuser/user_form_update.html"
+#     permission_required = ("customadmin.change_user",)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # kwargs["user"] = self.request.user
-        return kwargs
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         # kwargs["user"] = self.request.user
+#         return kwargs
 
-    def get_success_url(self):
-        # opts = self.model._meta
-        return reverse("customadmin:user-list")
+#     def get_success_url(self):
+#         # opts = self.model._meta
+#         return reverse("customadmin:user-list")
 
 class UserDeleteView(MyDeleteView):
     """View to delete User"""
