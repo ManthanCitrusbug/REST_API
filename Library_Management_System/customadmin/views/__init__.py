@@ -6,5 +6,24 @@ from .users import (
     UserDetailView,
     UserListView,
     UserPasswordView,
-    UserLoginView
+    UserLoginView,
+    UserUpdateView,
+)
+
+from .books import (
+    BookDetailsView,
+    BookListView,
+    BookCreateView,
+    BookDeleteView,
+    BookAjaxPagination,
+    BookUpdateView,
+)
+
+from .authors import (
+    AuthorCreateView,
+    AuthorDeleteView,
+    AuthorDetailsView,
+    AuthorListView,
+    AuthorUpdateView,
+    AuthorAjaxPagination,
 )

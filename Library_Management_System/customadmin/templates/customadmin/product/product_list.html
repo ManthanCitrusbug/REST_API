@@ -28,16 +28,16 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Price</th>
-                            <th>Image</th>
+                            <th>Description</th>
+                            <th>Book</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
                             <th>Name</th>
-                            <th>Price</th>
-                            <th>Image</th>
+                            <th>Description</th>
+                            <th>Book</th>
                             <th></th>
                         </tr>
                     </tfoot>
@@ -45,12 +45,8 @@
                         {% for o in object_list %}
                         <tr>
                             <td>{{ o.name }}</td>
-                            <td>{{ o.price }}</td>
-                            {% if o.product_image %}
-                            <td height="80px" width="180px"><img src="{{MEDIA_URL}}{{ o.product_image.url }}" alt="no image" height="80x" width="180px"></td>
-                            {% else %}
-                            <td>No Image</td>
-                            {% endif %}
+                            <td>{{ o.description }}</td>
+                            <td> {% for i in o.book.all %} - {{ i.name }} <br> {% endfor %} </td>
                             <td class="row-actions">
                                 {% include "customadmin/partials/list_row_more_actions.html" %}
                             </td>

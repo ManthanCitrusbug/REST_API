@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+from multiprocessing import context
 from django.views import View
 from customadmin.mixins import HasPermissionsMixin
 from customadmin.views.generic import (
@@ -9,23 +9,24 @@ from customadmin.views.generic import (
     MyLoginRequiredView,
     MyUpdateView,
 )
-from library_admin.forms import AdminLoginForm, AdminUpdateform, AdminRegisterform
+from library_admin.forms import EditBookForm, AddBookForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views.generic import TemplateView, DetailView
-# from ..forms import UserChangeForm, UserCreationForm
 from django_datatables_too.mixins import DataTableMixin
-from django.shortcuts import reverse, render
-from django.contrib.auth.models import User
-
-import csv
-
+from library_admin.forms import AdminRegisterform
 from library_admin.models import Book
+from author.models import Author
+from django.shortcuts import render
+from django.urls import reverse
+from django.contrib.auth.models import User
+import csv
 
 # Export CSV FILE
 
@@ -58,129 +59,66 @@ def export_user_csv(request):
     writer.writerows(output)
     return response
 
-class UserDetailView(MyDetailView):
-    template_name = "customadmin/adminuser/user_detail.html"
+
+class BookDetailsView(MyDetailView):
+    template_name = "customadmin/service/service_detail.html"
     context = {}
 
     def get(self, request, pk):
-        self.context['user_detail'] = User.objects.get(pk=pk)
-        # self.context['purchased_products'] = PurchasedProduct.objects.filter(user=pk)
-        # self.context['booked_services'] = BookedService.objects.filter(user=pk)
+        self.context['service_detail'] = Book.objects.filter(pk=pk).first()
         return render(request, self.template_name, self.context)
 
 
-class UserLoginView(View):
-    def post(self,request):
-        form = AdminLoginForm(request.POST)
-        user_name = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=user_name,password=password)
-        print(user)
-        if user is not None: 
-            print(user)
-            login(request, user)
-            return redirect('customadmin:dashboard')
-        else:
-            return render(request,'admin_login.html',{'form':form}) 
-
-    def get(self,request):
-        form = AdminLoginForm()
-        return render(request,'admin_login.html',{'form':form})
-
-
-
-class IndexView(LoginRequiredMixin, TemplateView):
-    template_name = "customadmin/index.html"
+class BookListView(MyListView):
+    ordering = ["id"]
+    model = Book
+    queryset = Book.objects.all()
+    template_name = "customadmin/service/service_list.html"
+    permission_required = ("customadmin.view_book",)
     context = {}
 
-    def get(self, request):
-        self.context['user_count']=User.objects.all().count()
-        return render(request, self.template_name, self.context)
-    
-
-# -----------------------------------------------------------------------------
-# Users
-# -----------------------------------------------------------------------------
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['author'] = Author.objects.all()
+        return super().get_context_data(**kwargs)
 
 
-class UserListView(MyListView):
-    # paginate_by = 25
-    ordering = ["id"]
-    model = User
-    queryset = model.objects.all()
-    template_name = "customadmin/adminuser/user_list.html"
-    permission_required = ("customadmin.view_user",)
-
-    # def get_queryset(self):
-    #     return self.model.objects.exclude(email=self.request.user).exclude(email=None)
+class BookCreateView(MyCreateView):
+    model = Book
+    form_class = AddBookForm
+    template_name = "customadmin/service/service_form.html"
+    permission_required = ("customadmin.add_book",)
 
 
-class UserCreateView(MyCreateView):
-    model = User
-    form_class = AdminRegisterform
-    template_name = "customadmin/adminuser/user_form.html"
-    permission_required = ("customadmin.add_user",)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # kwargs["user"] = self.request.user
-        return kwargs
-
-    def get_success_url(self):
-        # opts = self.model._meta
-        return reverse("customadmin:user-list")
-
-
-class UserUpdateView(MyUpdateView):
-    model = User
-    form_class = AdminUpdateform
-    template_name = "customadmin/adminuser/user_form_update.html"
-    permission_required = ("customadmin.change_user",)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # kwargs["user"] = self.request.user
-        return kwargs
-
-    def get_success_url(self):
-        # opts = self.model._meta
-        return reverse("customadmin:user-list")
-
-
-class UserDeleteView(MyDeleteView):
-    model = User
+class BookDeleteView(MyDeleteView):
+    model = Book
     template_name = "customadmin/confirm_delete.html"
-    permission_required = ("customadmin.delete_user",)
+    permission_required = ("customadmin.delete_book",)
 
     def get_success_url(self):
-        # opts = self.model._meta
-        return reverse("customadmin:user-list")
+        return reverse("customadmin:book-list")
 
-class UserPasswordView(MyUpdateView):
-    model = User
-    form_class = AdminPasswordChangeForm
-    template_name = "customadmin/adminuser/password_change_form.html"
-    permission_required = ("customadmin.change_user",)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # kwargs['user'] = self.request.user
-        kwargs["user"] = kwargs.pop("instance")
-        return kwargs
+class BookUpdateView(MyUpdateView):
+    model = Book
+    form_class = EditBookForm
+    template_name = "customadmin/service/update.html"
 
     def get_success_url(self):
-        opts = self.model._meta
-        return reverse("customadmin:user-list")
+        return reverse("customadmin:book-list")
 
-class UserAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredView):
-    model = User
-    queryset = User.objects.all().order_by("last_name")
+
+class BookAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredView):
+    model = Book
+    queryset = Book.objects.all()
 
     def _get_is_superuser(self, obj):
+        """Get boolean column markup."""
         t = get_template("customadmin/partials/list_boolean.html")
         return t.render({"bool_val": obj.is_superuser})
 
     def _get_actions(self, obj, **kwargs):
+        """Get actions column markup."""
         # ctx = super().get_context_data(**kwargs)
         t = get_template("customadmin/partials/list_basic_actions.html")
         # ctx.update({"obj": obj})
@@ -188,6 +126,8 @@ class UserAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredVie
         return t.render({"o": obj})
 
     def filter_queryset(self, qs):
+        """Return the list of items for this view."""
+        # If a search term, filter the query
         if self.search:
             return qs.filter(
                 Q(username__icontains=self.search)
@@ -214,11 +154,17 @@ class UserAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredVie
             )
         return data
 
+    """Built this before realizing there is
+    https://bitbucket.org/pigletto/django-datatables-view."""
+
+
     def _get_is_superuser(self, obj):
+        """Get boolean column markup."""
         t = get_template("customadmin/partials/list_boolean.html")
         return t.render({"bool_val": obj.is_superuser})
 
     def _get_actions(self, obj, **kwargs):
+        """Get actions column markup."""
         # ctx = super().get_context_data(**kwargs)
         t = get_template("customadmin/partials/list_basic_actions.html")
         # ctx.update({"obj": obj})
@@ -226,6 +172,8 @@ class UserAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredVie
         return t.render({"o": obj})
 
     def filter_queryset(self, qs):
+        """Return the list of items for this view."""
+        # If a search term, filter the query
         if self.search:
             return qs.filter(
                 Q(username__icontains=self.search)
@@ -237,6 +185,7 @@ class UserAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredVie
         return qs
 
     def prepare_results(self, qs):
+        # Create row data for datatables
         data = []
         for o in qs:
             data.append(

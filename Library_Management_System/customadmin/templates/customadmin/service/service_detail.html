@@ -20,7 +20,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="h5 text-left" colspan="2">Service Detail</td>
+                            <td class="h5 text-left" colspan="2">Book Detail</td>
                         </tr>
                         <tr class="text-left">
                             {% if service_detail.service_image %}
@@ -33,15 +33,14 @@
                             <td class="h6">
                                 Name : {{service_detail.name|capfirst}} <br>
                                 <hr>
-                                Service Category : {{service_detail.service_category.category_name}}
+                                Description : {{service_detail.description}}
                                 <hr>
-                                Booking Charge : {{service_detail.booking_charge}}
+                                Quantity : {{service_detail.quantity}}
                                 <hr>
-                                Service Charge : {{service_detail.service_charge}}
+                                Category : {{service_detail.category.name}}
                                 <hr>
-                                Service Detail : {{service_detail.detail}}
+                                Author : {% for i in service_detail.author.all %} - {{i.name}}<br> {% endfor %}
                                 <hr>
-                                Service Related to : {{service_detail.related_to.name}}
                             </td>
                         </tr>
                     </tbody>

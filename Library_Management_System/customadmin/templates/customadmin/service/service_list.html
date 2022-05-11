@@ -28,20 +28,20 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Service Category</th>
-                            <th>Booking Charge</th>
-                            <th>Service Charge</th>
-                            <th>Related Service</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Category</th>
+                            <th>Author</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
                             <th>Name</th>
-                            <th>Service Category</th>
-                            <th>Booking Charge</th>
-                            <th>Service Charge</th>
-                            <th>Related Service</th>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Category</th>
+                            <th>Author</th>
                             <th></th>
                         </tr>
                     </tfoot>
@@ -49,10 +49,10 @@
                         {% for o in object_list %}
                         <tr>
                             <td>{{ o.name }}</td>
-                            <td>{{ o.service_category.category_name }}</td>
-                            <td>{{ o.booking_charge|floatformat:2 }}</td>
-                            <td>{{ o.service_charge|floatformat:2 }}</td>
-                            <td>{% if o.related_to %}{{ o.related_to.name }}{% else %}None{% endif %}</td>
+                            <td>{{ o.description }}</td>
+                            <td>{{ o.quantity }}</td>
+                            <td>{{ o.category.name }}</td>
+                            <td class="row-actions"> {% for i in o.author.all %} - {{ i.name }} <br> {% endfor %} </td>
                             <td class="row-actions">
                                 {% include "customadmin/partials/list_row_more_actions.html" %}
                             </td>
@@ -73,7 +73,7 @@
 <script src="{% static 'customadmin/js/userroles.js' %}"></script>
 
 <script>
-    var pagination_url = "{% url opts|admin_urlname:'list-ajax' %}";
+    var pagination_url = "{% url 'customadmin:book-list-ajax' %}";
     $(function () {
         userroles.service.index();
     });

@@ -15,7 +15,7 @@
                 <table class="table table-striped table-bordered table-hover" id="{{ opts.model_name }}-table">
                     <thead>
                         <tr>
-                            <td colspan="2" class="h5 text-left border-white">{{product_detail.name|capfirst}}</td>
+                            <td colspan="2" class="h5 text-left border-white">{{author_detail.name|capfirst}}</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -24,17 +24,12 @@
                         </tr>
                         <tr class="text-left">
                             <td class="h6">
-                                Name : {{product_detail.name|capfirst}} <br>
+                                Name : {{author_detail.name|capfirst}} <br>
                                 <hr>
-                                Price : {{product_detail.price}}
+                                Description : {{author_detail.description}}
                                 <hr>
-                                Detail : {{product_detail.detail}}
+                                Book : {% for i in author_detail.book.all %} - {{i.name}} <br> {% endfor %}
                                 <hr>
-                                {% if product_detail.product_image %}
-                                Product Image : <img src="{{MEDIA_URL}}{{ product_detail.product_image.url }}" alt="no image" height="80x" width="180px">
-                                {% else %}
-                                Product Image : No Image
-                                {% endif %}
                             </td>
                         </tr>
                     </tbody>

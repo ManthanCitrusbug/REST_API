@@ -25,28 +25,17 @@
                             <td class="h5 text-left" colspan="2">User Detail</td>
                         </tr>
                             <tr class="text-left">
-                                <td class="text-center" height="240px" width="480px">
-                                    <img src="{{MEDIA_URL}}{{user_detail.profile_image.url}}" alt="" height="240px" width="480px">
-                                </td>
                                 <td class="h6">
                                     Fullname : {{user_detail.first_name}} {{user_detail.last_name}}
                                     <hr>
                                     Email : {{user_detail.email}}
                                     <hr>
-                                    Phone : {{user_detail.phone}}
-                                    <hr>
-                                    Address : {{user_detail.address}}
-                                    <hr>
-                                    Date of Birth : {{user_detail.date_of_birth}}
-                                    <hr>
-                                    Language : {{user_detail.language}}
-                                    <hr>
                                     Active : {% show_check user_detail.is_active %}
                                 </td>
                             </tr>
                         <tr>
-                            <td class="h5 text-left" colspan="2">Purchased Products</td>
-                        </tr>
+                            <!-- <td class="h5 text-left" colspan="2">Purchased Products</td> -->
+                        <!-- </tr>
                             <tr>
                                 <div class="ibox-content">
                                     <div class="table-responsive">
@@ -119,7 +108,7 @@
                                         </table>
                                     </div>
                                 </div>
-                            </tr>
+                            </tr> -->
                     </tbody>
 
                 </table>
