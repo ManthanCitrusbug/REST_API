@@ -10,7 +10,7 @@
 
     
 
-    {% include "customadmin/includes/list_header_card.html" with title="Create a new Product" subtitle="Create a new Product." show_button=True %}
+    {% include "customadmin/includes/list_header_card.html" with title="Create Category" subtitle="Create a new Category." show_button=True %}
 
     <div class="ibox float-e-margins">
         {% comment %} <div class="ibox-title">
@@ -28,16 +28,12 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Description</th>
-                            <th>Book</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
                             <th>Name</th>
-                            <th>Description</th>
-                            <th>Book</th>
                             <th></th>
                         </tr>
                     </tfoot>
@@ -45,8 +41,6 @@
                         {% for o in object_list %}
                         <tr>
                             <td>{{ o.name }}</td>
-                            <td>{{ o.description }}</td>
-                            <td> {% for i in o.book.all %} - {{ i.name }} <br> {% endfor %} </td>
                             <td class="row-actions">
                                 {% include "customadmin/partials/list_row_more_actions.html" %}
                             </td>
@@ -69,7 +63,7 @@
 <script>
     var pagination_url = "{% url opts|admin_urlname:'list-ajax' %}";
     $(function () {
-        userroles.shopproduct.index();
+        userroles.inquiry.index();
     });
 </script>
 {% endblock %}

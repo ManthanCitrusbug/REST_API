@@ -7,66 +7,67 @@ from customadmin.views.generic import (
     MyLoginRequiredView,
     MyUpdateView,
 )
-from author.forms import AddAuthorForm
+from library_admin.forms import AddCategory
 from django.db.models import Q
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django_datatables_too.mixins import DataTableMixin
-from author.models import Author
+from library_admin.models import Category
 from django.shortcuts import render
 from django.urls import reverse
 
-class AuthorDetailsView(MyDetailView):
-    template_name = "customadmin/author/product_detail.html"
+
+class CategoryDetailsView(MyDetailView):
+    template_name = "customadmin/category/inquiry_detail.html"
     context = {}
 
     def get(self, request, pk):
-        self.context['author_detail'] = Author.objects.filter(pk=pk).first()
+        self.context['inquiry_detail'] = Category.objects.filter(pk=pk).first()
         return render(request, self.template_name, self.context)
 
 
-class AuthorListView(MyListView):
+class CategoryListView(MyListView):
     ordering = ["id"]
-    model = Author
-    queryset = Author.objects.all()
-    template_name = "customadmin/author/product_list.html"
+    model = Category
+    queryset = Category.objects.all()
+    template_name = "customadmin/category/inquiry_list.html"
     context = {}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['author'] = Author.objects.all()
+        context['author'] = Category.objects.all()
         return super().get_context_data(**kwargs)
 
 
-class AuthorCreateView(MyCreateView):
-    model = Author
-    form_class = AddAuthorForm
-    template_name = "customadmin/author/product_form.html"
+class CategoryCreateView(MyCreateView):
+    model = Category
+    form_class = AddCategory
+    template_name = "customadmin/category/inquiry_form.html"
 
     def get_success_url(self):
-        return reverse("customadmin:author-list")
+        return reverse("customadmin:category-list")
 
 
-class AuthorDeleteView(MyDeleteView):
-    model = Author
+class CategoryDeleteView(MyDeleteView):
+    model = Category
     template_name = "customadmin/confirm_delete.html"
 
     def get_success_url(self):
-        return reverse("customadmin:author-list")
+        return reverse("customadmin:category-list")
 
 
-class AuthorUpdateView(MyUpdateView):
-    model = Author
-    form_class = AddAuthorForm
-    template_name = "customadmin/author/product_update.html"
+class CategoryUpdateView(MyUpdateView):
+    model = Category
+    form_class = AddCategory
+    template_name = "customadmin/category/inquiry_update.html"
 
     def get_success_url(self):
-        return reverse("customadmin:author-list")
+        return reverse("customadmin:category-list")
 
 
-class AuthorAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredView):
-    model = Author
-    queryset = Author.objects.all()
+class CategoryAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredView):
+    model = Category
+    queryset = Category.objects.all()
 
     def _get_is_superuser(self, obj):
         """Get boolean column markup."""

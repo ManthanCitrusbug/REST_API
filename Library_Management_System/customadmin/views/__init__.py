@@ -27,3 +27,21 @@ from .authors import (
     AuthorUpdateView,
     AuthorAjaxPagination,
 )
+
+from .category import (
+    CategoryCreateView,
+    CategoryDeleteView,
+    CategoryDetailsView,
+    CategoryListView,
+    CategoryUpdateView,
+    CategoryAjaxPagination,
+)
+
+from .issued_book import (
+    IssuedBookAjaxPagination,
+    IssuedBookCreateView,
+    IssuedBookDeleteView,
+    IssuedBookListView,
+    IssuedBookDetailsView,
+    IssuedBookUpdateView,
+)

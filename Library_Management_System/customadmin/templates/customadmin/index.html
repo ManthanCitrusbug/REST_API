@@ -16,7 +16,8 @@
 {% now "Y" as year_arg %}
 {% now "M" as month_arg %}
 {% now "d" as day_arg %}
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
 
 
 
@@ -27,10 +28,14 @@
         <div class="ibox-title">
           <div class="ibox-tools">
           </div>
-          <h5>Users</h5>
+          <h5>Issued Book</h5>
         </div>
         <div class="ibox-content">
-          <h3 class="no-margins">{{ user_count }}</h3>
+          {% if not year %}
+          <h3 class="no-margins">{{ user_count.count }}</h3>
+          {% else %}
+          <h3 class="no-margins">{{ year.count }}</h3>
+          {% endif %}
           <small>Total users joined</small>
         </div>
       </div>
@@ -41,25 +46,15 @@
         <div class="ibox-title">
           <div class="ibox-tools">
           </div>
-          <h5>Purchased Products</h5>
+          <h5>Total Issued Book</h5>
         </div>
         <div class="ibox-content">
-          <h3 class="no-margins">{{ user_count }}</h3>
+          {% if not year %}
+          <h3 class="no-margins">{{ user_count.count }}</h3>
+          {% else %}
+          <h3 class="no-margins">{{ year.count }}</h3>
+          {% endif %}
           <small>Total products purchased</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-3">
-      <div class="ibox ">
-        <div class="ibox-title">
-          <div class="ibox-tools">
-          </div>
-          <h5>Users</h5>
-        </div>
-        <div class="ibox-content">
-          <h3 class="no-margins">{{ user_count }}</h3>
-          <small>Total services booked</small>
         </div>
       </div>
     </div>
@@ -73,6 +68,18 @@
     <div class="ibox ">
       <div class="ibox-title">
         <h5>Orders</h5>
+        <form action="" method="POST">
+          {% csrf_token %}
+          <label for="">Select Year</label>
+          <select name="years" id="">
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+          </select>
+          <input type="submit" value="Submit" class="ml-2">
+        </form>
         <div class="ibox-tools">
           <div class="btn-group">
             <button type="button" class="btn btn-xs btn-white active">Today</button>
@@ -85,6 +92,62 @@
         <div class="row">
           <div class="col-lg-9">
             <div class="flot-chart">
+              <table class="table table-striped table-bordered table-hover" id="{{ opts.model_name }}-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Book</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Issued Date</th>
+                        <th>Return Date</th>
+                        <th>Charge Per Day</th>
+                        <th>Total Charge</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Name</th>
+                        <th>Book</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Issued Date</th>
+                        <th>Return Date</th>
+                        <th>Charge Per Day</th>
+                        <th>Total Charge</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                  {% if not year %}
+                    {% for o in user_count %}
+                    <tr>
+                        <td>{{ o.username }}</td>
+                        <td>{{ o.book }}</td>
+                        <td>{{ o.email }}</td>
+                        <td>{{ o.address }}</td>
+                        <td>{{ o.issued_date }}</td>
+                        <td>{{ o.return_date }}</td>
+                        <td>{{ o.charge_per_day }}</td>
+                        <td>{{ o.total_charge }}</td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    {% for o in year %}
+                    <tr>
+                        <td>{{ o.username }}</td>
+                        <td>{{ o.book }}</td>
+                        <td>{{ o.email }}</td>
+                        <td>{{ o.address }}</td>
+                        <td>{{ o.issued_date }}</td>
+                        <td>{{ o.return_date }}</td>
+                        <td>{{ o.charge_per_day }}</td>
+                        <td>{{ o.total_charge }}</td>
+                    </tr>
+                    <canvas id="bar-chart" width="250" height="80"></canvas>
+                    {% endfor %}
+                  {% endif %}
+                </tbody>
+            </table>
               <div class="flot-chart-content" id="flot-dashboard-chart"></div>
             </div>
           </div>
@@ -129,8 +192,6 @@
     </div>
   </div>
 </div>
-
-
 
 
 
@@ -187,5 +248,29 @@
 
 </div> {% endcomment %}
 <!-- /row -->
+
+<script>
+  var chart = new Chart(document.getElementById("bar-chart"), {
+    type: 'bar',
+    data: {
+      labels: ["Jan", "Fab", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      datasets: [
+        {
+          label: "Issued Books",
+          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#3cba9f","#e8c3b9"],
+          data: [{% for i in range(12) %} {{i}} {% endfor %}] 
+        }
+      ]
+    },
+    options: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: 'Issued Books'
+      }
+    }
+});
+</script>
+
 
 {% endblock %}

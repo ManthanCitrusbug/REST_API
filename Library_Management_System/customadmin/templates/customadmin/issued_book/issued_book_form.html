@@ -1,6 +1,6 @@
 {% extends 'customadmin/change_form.html' %}
 {% load static %}
-{% load widget_tweaks %}
+{% load crispy_forms_field %}
 {% load admin_extras %}
 {% load misc_filters %}
 {% load crispy_forms_tags %}
@@ -14,30 +14,30 @@
 
         <div class="ibox float-e-margins">
 
-            {% include "customadmin/partials/ibox_title.html" with ibox_title="Service Booking Details" icon_class="fas fa-sign-in-alt" only %}
+            {% include "customadmin/partials/ibox_title.html" with ibox_title="Service Details" icon_class="fas fa-sign-in-alt" only %}
 
             <div class="ibox-content">
+
                 <div class="row">
                     <div class="col-sm-6">
-                        {{ form.transaction_detail|as_crispy_field }}
+                        {{ form.username|as_crispy_field }}
                     </div>
                     <div class="col-sm-6">
-                        {{ form.user|as_crispy_field }}
+                        {{ form.email|as_crispy_field }}
                     </div>
                     <div class="col-sm-6">
-                        {{ form.service|as_crispy_field }}
+                        {{ form.address|as_crispy_field }}
                     </div>
                     <div class="col-sm-6">
-                        {{ form.booking_charge|as_crispy_field }}
+                        {{ form.book|as_crispy_field }}
                     </div>
                     <div class="col-sm-6">
-                        {{ form.service_date|as_crispy_field }}
+                        {{ form.issued_date|as_crispy_field }}
                     </div>
                     <div class="col-sm-6">
-                        {{ form.service_time|as_crispy_field }}
+                        {{ form.charge_per_day|as_crispy_field }}
                     </div>
-                </div>
-
+                </div>               
             </div>
             <!-- /ibox-content -->
 
@@ -58,7 +58,7 @@
 <script src="{% static 'customadmin/js/userroles.js' %}"></script>
 <script>
     $(function() {
-        userroles.service_booking.details();
+        userroles.servicecategory.details();
     });
 </script>
 {% endblock %}

@@ -72,6 +72,10 @@ def admin_urlname(value, arg):
         pattern = "%s:%s-%s" % ('customadmin', 'book', arg)
     if value.model_name == 'author':
         pattern = "%s:%s-%s" % ('customadmin', 'author', arg)
+    if value.model_name == 'category':
+        pattern = "%s:%s-%s" % ('customadmin', 'category', arg)
+    if value.model_name == 'issued_book':
+        pattern = "%s:%s-%s" % ('customadmin', 'issued_book', arg)
     # print('---------------------------------------------------------------------------------',pattern)
     return pattern
 

@@ -10,7 +10,7 @@
 
     
 
-    {% include "customadmin/includes/list_header_card.html" with title="Create a new Foundation code" subtitle="Create a new Foundation code." show_button=True %}
+    {% include "customadmin/includes/list_header_card.html" with title="Add a Author" subtitle="Add a new Author." show_button=True %}
 
     <div class="ibox float-e-margins">
         {% comment %} <div class="ibox-title">
@@ -27,25 +27,28 @@
                 <table class="table table-striped table-bordered table-hover" id="{{ opts.model_name }}-table">
                     <thead>
                         <tr>
-                            <th>Code</th>
-                            <th>Meaning</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Book</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
-                            <th>Code</th>
-                            <th>Meaning</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Book</th>
                             <th></th>
                         </tr>
                     </tfoot>
                     <tbody>
                         {% for o in object_list %}
                         <tr>
-                            <td>{{ o.code }}</td>
-                            <td>{{ o.meaning }}</td>
+                            <td>{{ o.name }}</td>
+                            <td>{{ o.description }}</td>
+                            <td> {% for i in o.book.all %} - {{ i.name }} <br> {% endfor %} </td>
                             <td class="row-actions">
-                                {% include "customadmin/partials/list_row_actions.html" %}
+                                {% include "customadmin/partials/list_row_more_actions.html" %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -66,7 +69,7 @@
 <script>
     var pagination_url = "{% url opts|admin_urlname:'list-ajax' %}";
     $(function () {
-        userroles.foundationcode.index();
+        userroles.shopproduct.index();
     });
 </script>
 {% endblock %}

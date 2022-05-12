@@ -2,10 +2,8 @@ from datetime import date
 from asyncio.windows_events import NULL
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-
 from author.models import Author
-from library_admin.models import Book, Issued_Book
+from library_admin.models import Book, Issued_Book, Category
 
 class AdminRegisterform(forms.ModelForm):
 
@@ -240,3 +238,9 @@ class Issue_Book_Edit_Form(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class AddCategory(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = '__all__'

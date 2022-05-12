@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from msilib.schema import ListView
 from django.views import View
 from customadmin.mixins import HasPermissionsMixin
+from customadmin.views import issued_book
 from customadmin.views.generic import (
     MyCreateView,
     MyDeleteView,
@@ -10,22 +12,20 @@ from customadmin.views.generic import (
     MyUpdateView,
 )
 from library_admin.forms import AdminLoginForm, AdminUpdateform, AdminRegisterform
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse
 from django.template.loader import get_template
-from django.views.generic import TemplateView, DetailView
-# from ..forms import UserChangeForm, UserCreationForm
+from django.views.generic import TemplateView
 from django_datatables_too.mixins import DataTableMixin
 from django.shortcuts import reverse, render
 from django.contrib.auth.models import User
-
+from library_admin.models import Issued_Book
+from chartjs.views.lines import BaseLineChartView
 import csv
-
-from library_admin.models import Book
 
 # Export CSV FILE
 
@@ -64,8 +64,6 @@ class UserDetailView(MyDetailView):
 
     def get(self, request, pk):
         self.context['user_detail'] = User.objects.get(pk=pk)
-        # self.context['purchased_products'] = PurchasedProduct.objects.filter(user=pk)
-        # self.context['booked_services'] = BookedService.objects.filter(user=pk)
         return render(request, self.template_name, self.context)
 
 
@@ -94,40 +92,35 @@ class IndexView(LoginRequiredMixin, TemplateView):
     context = {}
 
     def get(self, request):
-        self.context['user_count']=User.objects.all().count()
+        self.context['user_count'] = Issued_Book.objects.all()
         return render(request, self.template_name, self.context)
-    
 
+    def post(self, request):
+        yr = request.POST.get('years')
+        labels =  ["Jan", "Fab", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        for i in labels:
+            chart = Issued_Book.objects.filter(issued_date__month = i).count()
+        query = Issued_Book.objects.filter(issued_date__year = yr)
+        return render(request, "customadmin/index.html", {'year': query, 'chart': chart})
+        
 # -----------------------------------------------------------------------------
 # Users
 # -----------------------------------------------------------------------------
 
 
 class UserListView(MyListView):
-    # paginate_by = 25
     ordering = ["id"]
     model = User
     queryset = model.objects.all()
     template_name = "customadmin/adminuser/user_list.html"
-    permission_required = ("customadmin.view_user",)
-
-    # def get_queryset(self):
-    #     return self.model.objects.exclude(email=self.request.user).exclude(email=None)
 
 
 class UserCreateView(MyCreateView):
     model = User
     form_class = AdminRegisterform
     template_name = "customadmin/adminuser/user_form.html"
-    permission_required = ("customadmin.add_user",)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # kwargs["user"] = self.request.user
-        return kwargs
 
     def get_success_url(self):
-        # opts = self.model._meta
         return reverse("customadmin:user-list")
 
 
@@ -135,41 +128,29 @@ class UserUpdateView(MyUpdateView):
     model = User
     form_class = AdminUpdateform
     template_name = "customadmin/adminuser/user_form_update.html"
-    permission_required = ("customadmin.change_user",)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # kwargs["user"] = self.request.user
-        return kwargs
 
     def get_success_url(self):
-        # opts = self.model._meta
         return reverse("customadmin:user-list")
 
 
 class UserDeleteView(MyDeleteView):
     model = User
     template_name = "customadmin/confirm_delete.html"
-    permission_required = ("customadmin.delete_user",)
 
     def get_success_url(self):
-        # opts = self.model._meta
         return reverse("customadmin:user-list")
 
 class UserPasswordView(MyUpdateView):
     model = User
     form_class = AdminPasswordChangeForm
     template_name = "customadmin/adminuser/password_change_form.html"
-    permission_required = ("customadmin.change_user",)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # kwargs['user'] = self.request.user
         kwargs["user"] = kwargs.pop("instance")
         return kwargs
 
     def get_success_url(self):
-        opts = self.model._meta
         return reverse("customadmin:user-list")
 
 class UserAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredView):
@@ -181,10 +162,7 @@ class UserAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredVie
         return t.render({"bool_val": obj.is_superuser})
 
     def _get_actions(self, obj, **kwargs):
-        # ctx = super().get_context_data(**kwargs)
         t = get_template("customadmin/partials/list_basic_actions.html")
-        # ctx.update({"obj": obj})
-        # print(ctx)
         return t.render({"o": obj})
 
     def filter_queryset(self, qs):

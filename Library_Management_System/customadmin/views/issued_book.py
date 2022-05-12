@@ -7,66 +7,67 @@ from customadmin.views.generic import (
     MyLoginRequiredView,
     MyUpdateView,
 )
-from author.forms import AddAuthorForm
+from library_admin.forms import Issue_Book_Form, Issue_Book_Edit_Form
+from library_admin.models import Issued_Book
 from django.db.models import Q
+from django.urls import reverse_lazy
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django_datatables_too.mixins import DataTableMixin
-from author.models import Author
 from django.shortcuts import render
 from django.urls import reverse
 
-class AuthorDetailsView(MyDetailView):
-    template_name = "customadmin/author/product_detail.html"
+class IssuedBookDetailsView(MyDetailView):
+    template_name = "customadmin/issued_book/issued_book_detail.html"
     context = {}
 
     def get(self, request, pk):
-        self.context['author_detail'] = Author.objects.filter(pk=pk).first()
+        self.context['issued_dook'] = Issued_Book.objects.filter(pk=pk).first()
         return render(request, self.template_name, self.context)
 
 
-class AuthorListView(MyListView):
-    ordering = ["id"]
-    model = Author
-    queryset = Author.objects.all()
-    template_name = "customadmin/author/product_list.html"
+class IssuedBookListView(MyListView):
+    ordering = ["-id"]
+    model = Issued_Book
+    queryset = Issued_Book.objects.all()
+    template_name = "customadmin/issued_book/issued_book_list.html"
     context = {}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['author'] = Author.objects.all()
+        context['issued_dook'] = Issued_Book.objects.all()
         return super().get_context_data(**kwargs)
 
 
-class AuthorCreateView(MyCreateView):
-    model = Author
-    form_class = AddAuthorForm
-    template_name = "customadmin/author/product_form.html"
+class IssuedBookCreateView(MyCreateView):
+    model = Issued_Book
+    form_class = Issue_Book_Form
+    template_name = "customadmin/issued_book/issued_book_form.html"
 
     def get_success_url(self):
-        return reverse("customadmin:author-list")
+        return reverse("customadmin:issued_book-list")
 
 
-class AuthorDeleteView(MyDeleteView):
-    model = Author
+class IssuedBookDeleteView(MyDeleteView):
+    model = Issued_Book
     template_name = "customadmin/confirm_delete.html"
 
     def get_success_url(self):
-        return reverse("customadmin:author-list")
+        return reverse("customadmin:issued_book-list")
 
 
-class AuthorUpdateView(MyUpdateView):
-    model = Author
-    form_class = AddAuthorForm
-    template_name = "customadmin/author/product_update.html"
+class IssuedBookUpdateView(MyUpdateView):
+    model = Issued_Book
+    form_class = Issue_Book_Edit_Form
+    template_name = "customadmin/issued_book/issued_book_update.html"
 
     def get_success_url(self):
-        return reverse("customadmin:author-list")
+        return reverse("customadmin:issued_book-list")
 
 
-class AuthorAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredView):
-    model = Author
-    queryset = Author.objects.all()
+class IssuedBookAjaxPagination(DataTableMixin, HasPermissionsMixin, MyLoginRequiredView):
+    model = Issued_Book
+    queryset = Issued_Book.objects.all()
 
     def _get_is_superuser(self, obj):
         """Get boolean column markup."""
