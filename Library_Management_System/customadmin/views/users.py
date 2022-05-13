@@ -97,11 +97,13 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
     def post(self, request):
         yr = request.POST.get('years')
-        labels =  ["Jan", "Fab", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"]
-        for i in labels:
-            chart = Issued_Book.objects.filter(issued_date__month = i).count()
+        months =  ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+        data = []
+        for i in months:
+            chart = Issued_Book.objects.filter(issued_date__year = yr, issued_date__month = i).count()
+            data.append(chart)
         query = Issued_Book.objects.filter(issued_date__year = yr)
-        return render(request, "customadmin/index.html", {'year': query, 'chart': chart})
+        return render(request, "customadmin/index.html", {'year': query, 'chart': data})
         
 # -----------------------------------------------------------------------------
 # Users
