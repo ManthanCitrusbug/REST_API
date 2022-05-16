@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -6,8 +7,15 @@ from django.contrib.auth.models import User
 from django.views.generic import CreateView, TemplateView, ListView, UpdateView, DetailView, DeleteView
 from django.contrib.auth import authenticate, login, logout
 from library_admin.models import Book, Issued_Book
+from .tasks import test_func
 
 # Create your views here.
+
+class CeleryTaskView(View):
+    def get(self, request):
+        test_func.delay()
+        return HttpResponse("Done....")
+
 
 class IntexView(TemplateView):
     template_name = 'index.html'

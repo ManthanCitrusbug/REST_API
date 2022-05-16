@@ -7,6 +7,8 @@ from datetime import date
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from library_admin.tasks import send_mail_task
+from django.db.models import Q
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -78,6 +80,8 @@ class IssuedBookSerialize(serializers.ModelSerializer):
         qun = Book.objects.get(name=user.book)
         x = qun.quantity + 1
         Book.objects.filter(name=user.book).update(quantity=x)
+        if Issued_Book.objects.filter(~Q(total_charge__isnull=True)):
+            send_mail_task.delay()
         user.save()
         return user
 

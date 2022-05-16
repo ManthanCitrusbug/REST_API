@@ -14,6 +14,7 @@ app_name = 'library_admin'
 
 
 urlpatterns = [
+    # path('celery', views.CeleryTaskView.as_view(), name='celery'),
     # path('admin/', admin.site.urls),
     path('index', views.IntexView.as_view(), name='index'),
     path('admin-register', views.AdminRegisterView.as_view(), name='admin-register'),
