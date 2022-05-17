@@ -34,9 +34,10 @@ class AdminLoginView(View):
         user_name = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=user_name,password=password)
-        if user is not None: 
-            login(request, user)
-            return redirect('library_admin:admin-dashboard')
+        if user is not None:
+            if user.is_staff == True:
+                login(request, user)
+                return redirect('library_admin:admin-dashboard')
         else:
             return render(request,'admin_login.html',{'form':form}) 
 

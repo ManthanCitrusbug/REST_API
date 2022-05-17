@@ -1,4 +1,5 @@
 from asyncio.windows_events import NULL
+from dataclasses import field
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from author.models import Author
@@ -9,14 +10,26 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from library_admin.tasks import send_mail_task
 from django.db.models import Q
+from .models import Company
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # company = serializers.StringRelatedField(read_only=True)
+    # company = CompanySerializer(many=True)
+    company = serializers.SlugRelatedField(read_only=True, slug_field='name')
     token = serializers.SerializerMethodField('get_token_key')
+
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'token', 'password']
-        extra_kwargs = {'password' : {'write_only' : True}}
+        fields = ['username', 'first_name', 'last_name',
+            'email', 'token', 'password', 'company']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def get_token_key(self, obj):
         token = Token.objects.get_or_create(user_id=obj.id)[0].key
@@ -24,6 +37,16 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = super().create(validated_data)
+        # x = str(user.email)
+        # if x.find('gmail') or x.find('yopmail'):
+        #     user.company = None
+        # else:
+        #     query = User.objects.all()
+        #     ids = []
+        #     for i in query:
+        #         ids.append(i)
+        #     if user.id == min(ids):
+        #         user.company = None
         user.set_password(self.validated_data['password'])
         user.save()
         return user
@@ -80,9 +103,10 @@ class IssuedBookSerialize(serializers.ModelSerializer):
         qun = Book.objects.get(name=user.book)
         x = qun.quantity + 1
         Book.objects.filter(name=user.book).update(quantity=x)
-        if Issued_Book.objects.filter(~Q(total_charge__isnull=True)):
-            send_mail_task.delay()
         user.save()
+        if user.return_date is not None:
+            # send_mail_task.delay(user.email, user.return_date)
+            send_mail_task.delay(user.id)
         return user
 
 class IssuedBookCreateSerializer(serializers.ModelSerializer):
