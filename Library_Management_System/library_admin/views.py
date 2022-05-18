@@ -94,6 +94,7 @@ class DeleteBookView(View):
 
     
 class IssueBookView(CreateView):
+    ordering = ["id"]
     model = Issued_Book
     form_class = Issue_Book_Form
     template_name = 'book/issue_book.html'

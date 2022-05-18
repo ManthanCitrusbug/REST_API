@@ -40,6 +40,9 @@ class Issued_Book(models.Model):
     charge_per_day = models.PositiveIntegerField()
     total_charge = models.PositiveIntegerField(null=True, blank=True)
 
+    class Meta:
+        ordering = ["id"]
+
     def __str__(self):
         return self.username
 

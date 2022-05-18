@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 from library_admin.tasks import send_mail_task
 from django.db.models import Q
 from .models import Company
+from django.db.models import Min
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -23,12 +24,12 @@ class UserSerializer(serializers.ModelSerializer):
     # company = serializers.StringRelatedField(read_only=True)
     # company = CompanySerializer(many=True)
     company = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    # company = serializers.SlugRelatedField(read_only=False, slug_field='name', queryset=Company.objects.all())
     token = serializers.SerializerMethodField('get_token_key')
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name',
-            'email', 'token', 'password', 'company']
+        fields = ['username', 'first_name', 'last_name', 'email', 'token', 'password', 'company']
         extra_kwargs = {'password': {'write_only': True}}
 
     def get_token_key(self, obj):
@@ -37,17 +38,32 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = super().create(validated_data)
-        # x = str(user.email)
-        # if x.find('gmail') or x.find('yopmail'):
-        #     user.company = None
-        # else:
-        #     query = User.objects.all()
-        #     ids = []
-        #     for i in query:
-        #         ids.append(i)
-        #     if user.id == min(ids):
-        #         user.company = None
+        company = validated_data.get('company')
+        print(company)
+        mails = ['gmail', 'yopmail']
+        mailinator = ['mailinator']
+        email = str(user.email)
+        start = email.index('@') + 1 
+        end = email.index('.')
+        user_mail = str(email[start:end])
+
+        if user_mail in mails and not company:
+            user.company = None
+
+        x = Company.objects.all().aggregate(Min('id'))
+        if user_mail in mailinator and not company:
+            user.company = None
+
+        if Company.objects.filter(Q(name=user.company) and ~Q(name=None)).exists():
+            x = Company.objects.filter(name=user.company)
+            print(x)
+            for i in x:
+                i.user.add(user)
+        else:
+            x = Company.objects.create(name=user.company)
+            x.user.add(user)
         user.set_password(self.validated_data['password'])
+        user.is_staff = True
         user.save()
         return user
 
@@ -56,6 +72,25 @@ class UserSerializer(serializers.ModelSerializer):
         if created:
             Token.objects.create(user=instance)
         return instance
+
+
+class AddCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'
+
+    def save(self, **kwargs):
+        user = super().save(**kwargs)
+        if Company.objects.filter(name=user.name).exists():
+            x = Company.objects.get(name=user.name)
+            for i in user.user:
+                x.user.add(i)
+        else:
+            x = Company.objects.get(user=user.user.id)
+            x.name = user.company
+            x.save()
+        user.save()
+        return user
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -90,7 +125,6 @@ class IssuedBookSerialize(serializers.ModelSerializer):
     def validate(self, data):
         issued_date = data.get('issued_date')
         re_book = data.get('return_date')
-
         days = NULL
         if re_book != None:
             days = re_book - issued_date

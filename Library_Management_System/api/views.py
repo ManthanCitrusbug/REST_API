@@ -7,11 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from .serializers import BookSerializer, IssuedBookSerialize, UserSerializer, IssuedBookCreateSerializer, AuthorSerializer, UserLoginSerializer
+from .serializers import BookSerializer, IssuedBookSerialize, UserSerializer, IssuedBookCreateSerializer, AuthorSerializer, UserLoginSerializer, AddCompanySerializer
 from library_admin.models import Book, Issued_Book
 from author.models import Author
 from django.contrib.auth.models import User
 from .pagination import Mypagination
+from .models import Company
 from django.contrib.auth import authenticate
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -20,6 +21,10 @@ class UserCreateListAPIView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
+class AddCompanyAPIView(ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = AddCompanySerializer
 
 class UserLoginAPIView(APIView): 
     def post(self, request, format=None):
