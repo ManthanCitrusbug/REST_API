@@ -38,30 +38,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = super().create(validated_data)
-        company = validated_data.get('company')
-        print(company)
         mails = ['gmail', 'yopmail']
-        mailinator = ['mailinator']
         email = str(user.email)
         start = email.index('@') + 1 
         end = email.index('.')
         user_mail = str(email[start:end])
 
-        if user_mail in mails and not company:
+        if user_mail in mails:
+            user.company = None
+        
+        if user_mail not in mails:
             user.company = None
 
-        x = Company.objects.all().aggregate(Min('id'))
-        if user_mail in mailinator and not company:
-            user.company = None
-
-        if Company.objects.filter(Q(name=user.company) and ~Q(name=None)).exists():
-            x = Company.objects.filter(name=user.company)
-            print(x)
-            for i in x:
-                i.user.add(user)
-        else:
-            x = Company.objects.create(name=user.company)
-            x.user.add(user)
+        x = Company.objects.create(name=user.company)
+        x.user.add(user)
         user.set_password(self.validated_data['password'])
         user.is_staff = True
         user.save()
@@ -75,21 +65,54 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AddCompanySerializer(serializers.ModelSerializer):
+    # user = serializers.SlugRelatedField(read_only=False, slug_field='name', queryset=User.objects.all())
+    # user = serializers.IntegerField()
+    # user = serializers.StringRelatedField(read_only=False)
+    # user = UserSerializer()
     class Meta:
         model = Company
-        fields = '__all__'
+        fields = ['name', 'user']
+
+    # def validate(self, data):
+    #     user = data.get('user')
+    #     company = data.get('name')
+    #     if Company.objects.filter(name=company).exists():
+    #         x = Company.objects.get(name=company)
+    #         y = User.objects.get(id=user)
+    #         x.user.add(y)
+    #     return data
+
+    # def update(self, instance, validated_data):
+    #     data = super().update(instance, validated_data)
+    #     user = data.get('user')
+    #     company = data.get('name')
+    #     if Company.objects.filter(name=company).exists():
+    #         x = Company.objects.get(name=company)
+    #         x.user.add(user)
+    #     return data
+
+    # def create(self, validated_data):
+    #     user = super().create(validated_data)
+    #     users = validated_data.get('user')
+    #     print(users)
+    #     # data = User.objects.get(id=users)
+    #     # print(data)
+    #     company = validated_data.get('name')
+    #     if Company.objects.filter(Q(name=company) and ~Q(name=None)).exists():
+    #         x = Company.objects.get(name=company)
+    #         # for i in users:
+    #         x.user.add(users)
+    #         print(company)
+    #         user.save()
+    #     return user
 
     def save(self, **kwargs):
-        user = super().save(**kwargs)
-        if Company.objects.filter(name=user.name).exists():
+        user = super().save(**kwargs)   
+        print(user.user)
+        if Company.objects.filter(Q(name=user.name) and ~Q(name=None)).exists():
             x = Company.objects.get(name=user.name)
-            for i in user.user:
-                x.user.add(i)
-        else:
-            x = Company.objects.get(user=user.user.id)
-            x.name = user.company
-            x.save()
-        user.save()
+            x.user.add(user.user)
+            print(user.name)
         return user
 
 
