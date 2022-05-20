@@ -1,5 +1,4 @@
 from asyncio.windows_events import NULL
-from dataclasses import field
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from author.models import Author
@@ -11,50 +10,55 @@ from rest_framework.authtoken.models import Token
 from library_admin.tasks import send_mail_task
 from django.db.models import Q
 from .models import Company
-from django.db.models import Min
-
-
-class CompanySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Company
-        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # company = serializers.StringRelatedField(read_only=True)
-    # company = CompanySerializer(many=True)
     company = serializers.SlugRelatedField(read_only=True, slug_field='name')
-    # company = serializers.SlugRelatedField(read_only=False, slug_field='name', queryset=Company.objects.all())
     token = serializers.SerializerMethodField('get_token_key')
-
+    # token = serializers.SerializerMethodField('create_token')
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'token', 'password', 'company']
         extra_kwargs = {'password': {'write_only': True}}
 
-    def get_token_key(self, obj):
+    def get_token_key(self, obj):  
         token = Token.objects.get_or_create(user_id=obj.id)[0].key
         return token
 
     def create(self, validated_data):
         user = super().create(validated_data)
-        mails = ['gmail', 'yopmail']
-        email = str(user.email)
-        start = email.index('@') + 1 
-        end = email.index('.')
-        user_mail = str(email[start:end])
+        # mails = ['gmail', 'yopmail']
+        # email = str(user.email)
+        # start = email.index('@') + 1 
+        # end = email.index('.')
+        # user_mail = str(email[start:end])
 
-        if user_mail in mails:
-            user.company = None
+        # if user_mail in mails:
+        #     user.company = None
         
-        if user_mail not in mails:
-            user.company = None
+        # if user_mail not in mails:
+        #     if Company.objects.filter(user__email__icontains=user_mail).exists():
+        #         x = Company.objects.filter(user__email__icontains=user_mail)
+        #         ids = []
+        #         for i in x:
+        #             ids.append(i.id)
+        #         data = Company.objects.get(id=min(ids))
+        #         data.user.add(user)
+        #         user.company = data.name
+        #     else:
+        #         user.company = None
+        
+        # if user_mail not in mails and Company.objects.filter(user__email__icontains=user_mail).exists():
+        #     ids = []
+        #     for i in Company.objects.filter(user__email__icontains=user_mail):
+        #         ids.append(i.id)
+        #     x = Company.objects.get(id=min(ids))
+        #     x.user.add(user)
 
-        x = Company.objects.create(name=user.company)
-        x.user.add(user)
+        # x = Company.objects.create(name=user.company)
+        # x.user.add(user)
         user.set_password(self.validated_data['password'])
         user.is_staff = True
-        user.save()
         return user
 
     @receiver(post_save, sender=User)
@@ -65,22 +69,17 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AddCompanySerializer(serializers.ModelSerializer):
-    # user = serializers.SlugRelatedField(read_only=False, slug_field='name', queryset=User.objects.all())
-    # user = serializers.IntegerField()
-    # user = serializers.StringRelatedField(read_only=False)
-    # user = UserSerializer()
     class Meta:
         model = Company
         fields = ['name', 'user']
 
-    # def validate(self, data):
-    #     user = data.get('user')
-    #     company = data.get('name')
-    #     if Company.objects.filter(name=company).exists():
-    #         x = Company.objects.get(name=company)
-    #         y = User.objects.get(id=user)
-    #         x.user.add(y)
-    #     return data
+    def validate(self, data):
+        user = data.get('user')
+        company = data.get('name')
+        # for i in user:
+        #     if Company.objects.filter(Q(user=i) and (~Q(name=company))).exists():
+        #         raise serializers.ValidationError("User had already assign a Company.")
+        return data
 
     # def update(self, instance, validated_data):
     #     data = super().update(instance, validated_data)
@@ -90,6 +89,24 @@ class AddCompanySerializer(serializers.ModelSerializer):
     #         x = Company.objects.get(name=company)
     #         x.user.add(user)
     #     return data
+
+    # def create(self, validated_data):
+    #     user = super().create(validated_data)
+    #     mails = ['gmail', 'yopmail']
+    #     email = str(user.user.email)
+    #     start = email.index('@') + 1 
+    #     end = email.index('.')
+    #     user_mail = str(email[start:end])
+
+    #     if user_mail not in mails and Company.objects.filter(user__email__icontains=user_mail).exists():
+    #         ids = []
+    #         for i in Company.objects.filter(user__email__icontains=user_mail):
+    #             for y in i:
+    #                 ids.append(y.id)
+    #         Company.objects.filter(id=min(ids)).update(user=user.user)
+    #     else:
+    #         return user
+
 
     # def create(self, validated_data):
     #     user = super().create(validated_data)
@@ -106,14 +123,14 @@ class AddCompanySerializer(serializers.ModelSerializer):
     #         user.save()
     #     return user
 
-    def save(self, **kwargs):
-        user = super().save(**kwargs)   
-        print(user.user)
-        if Company.objects.filter(Q(name=user.name) and ~Q(name=None)).exists():
-            x = Company.objects.get(name=user.name)
-            x.user.add(user.user)
-            print(user.name)
-        return user
+    # def save(self, **kwargs):
+    #     user = super().save(**kwargs)   
+    #     print(user.user)
+    #     if Company.objects.filter(Q(name=user.name) and ~Q(name=None)).exists():
+    #         x = Company.objects.get(name=user.name)
+    #         x.user.add(user.user)
+    #         print(user.name)
+    #     return user
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
