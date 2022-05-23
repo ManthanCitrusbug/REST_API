@@ -3,6 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import *
 from api import views
 
+
+
 router = DefaultRouter()
 
 router.register('book', views.BookListAPIView, basename='book')
@@ -18,4 +20,5 @@ urlpatterns = [
     # path('issued-book/create/', views.IssuedBookCreateListAPIView.as_view(), name='issued-book-create'),
     path('issued-book/list/', views.IssuedBookCreateListAPIView.as_view(), name='issued-book-list'),
     path('issued-book/update/<int:pk>', views.IssuedBookAPIView.as_view(), name='issued-book-update'),
+
 ]

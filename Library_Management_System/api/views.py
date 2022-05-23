@@ -2,7 +2,8 @@ from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.authentication import TokenAuthentication
+# from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter
 from rest_framework import status
@@ -22,49 +23,55 @@ class UserCreateListAPIView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        mails = ['gmail', 'yopmail']
-        email = str(serializer.validated_data.get('email'))
-        start = email.index('@') + 1 
-        end = email.index('.')
-        user_mail = str(email[start:end])
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     mails = ['gmail', 'yopmail']
+    #     email = str(serializer.validated_data.get('email'))
+    #     start = email.index('@') + 1 
+    #     end = email.index('.')
+    #     user_mail = str(email[start:end])
 
-        if user_mail in mails:
-            serializer.data.company = None
+    #     serializer.data.company = None
 
-        if user_mail not in mails:
-            if Company.objects.filter(user__email__icontains=user_mail).exists():
-                x = Company.objects.filter(user__email__icontains=user_mail)
-                ids = []
-                for i in x:
-                    ids.append(i.id)
-                data = Company.objects.get(id=min(ids))
-                data.user.add(serializer.data)
-                serializer.data.company = data.name
-            else:
-                serializer.data.company = None
+    #     if user_mail in mails:
+    #         serializer.data.company = None
 
-        if user_mail not in mails and Company.objects.filter(user__email__icontains=user_mail).exists():
-            ids = []
-            for i in Company.objects.filter(user__email__icontains=user_mail):
-                ids.append(i.id)
-            x = Company.objects.get(id=min(ids))
-            x.user.add(serializer.data)
+    #     if user_mail not in mails:
+    #         if Company.objects.filter(user__email__icontains=user_mail).exists():
+    #             x = Company.objects.filter(user__email__icontains=user_mail)
+    #             ids = []
+    #             for i in x:
+    #                 ids.append(i.id)
+    #             data = Company.objects.get(id=min(ids))
+    #             user = User.objects.get(username=serializer.validated_data.get('username'))
+    #             data.user.add(user)
+    #             serializer.data.company = data.name
+    #         else:
+    #             serializer.data.company = None
 
-        x = Company.objects.create(name=serializer.data.company)
-        x.user.add(serializer.data)
-        serializer.data.set_password(self.validated_data['password'])
-        serializer.data.is_staff = True
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #     if user_mail not in mails and Company.objects.filter(user__email__icontains=user_mail).exists():
+    #         ids = []
+    #         for i in Company.objects.filter(user__email__icontains=user_mail):
+    #             ids.append(i.id)
+    #         x = Company.objects.get(id=min(ids))
+    #         user = User.objects.get(username=serializer.validated_data.get('username'))
+    #         x.user.add(user)
+
+    #     # x = Company.objects.create(name=serializer.data.company)
+    #     # x.user.add(serializer.data)
+    #     # serializer.data.set_password(self.validated_data['password'])
+    #     # serializer.data.is_staff = True
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class AddCompanyAPIView(ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = AddCompanySerializer
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -113,14 +120,14 @@ class BookListAPIView(ModelViewSet):
 class IssuedBookAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Issued_Book.objects.all().order_by('id')
     serializer_class = IssuedBookSerialize
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
 
 class IssuedBookCreateListAPIView(ListCreateAPIView):
     queryset = Issued_Book.objects.all().order_by('id')
     serializer_class = IssuedBookCreateSerializer
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [SearchFilter, DjangoFilterBackend]
     filterset_fields = ['email']
@@ -133,6 +140,6 @@ class AuthorListAPIView(ModelViewSet):
     serializer_class = AuthorSerializer
     filter_backends = [SearchFilter]
     search_fields = ['^name', '^book__name']
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     pagination_class = Mypagination
