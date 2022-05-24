@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 # from rest_framework.authentication import TokenAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.filters import SearchFilter
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -23,55 +23,12 @@ class UserCreateListAPIView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     mails = ['gmail', 'yopmail']
-    #     email = str(serializer.validated_data.get('email'))
-    #     start = email.index('@') + 1 
-    #     end = email.index('.')
-    #     user_mail = str(email[start:end])
-
-    #     serializer.data.company = None
-
-    #     if user_mail in mails:
-    #         serializer.data.company = None
-
-    #     if user_mail not in mails:
-    #         if Company.objects.filter(user__email__icontains=user_mail).exists():
-    #             x = Company.objects.filter(user__email__icontains=user_mail)
-    #             ids = []
-    #             for i in x:
-    #                 ids.append(i.id)
-    #             data = Company.objects.get(id=min(ids))
-    #             user = User.objects.get(username=serializer.validated_data.get('username'))
-    #             data.user.add(user)
-    #             serializer.data.company = data.name
-    #         else:
-    #             serializer.data.company = None
-
-    #     if user_mail not in mails and Company.objects.filter(user__email__icontains=user_mail).exists():
-    #         ids = []
-    #         for i in Company.objects.filter(user__email__icontains=user_mail):
-    #             ids.append(i.id)
-    #         x = Company.objects.get(id=min(ids))
-    #         user = User.objects.get(username=serializer.validated_data.get('username'))
-    #         x.user.add(user)
-
-    #     # x = Company.objects.create(name=serializer.data.company)
-    #     # x.user.add(serializer.data)
-    #     # serializer.data.set_password(self.validated_data['password'])
-    #     # serializer.data.is_staff = True
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
 class AddCompanyAPIView(ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = AddCompanySerializer
     # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -81,13 +38,16 @@ class AddCompanyAPIView(ModelViewSet):
             x = Company.objects.get(name=serializer.validated_data.get('name'))
             for i in serializer.validated_data.get('user'):
                 x.user.add(i)
-
-        for i in serializer.validated_data.get('user'):
-            if Company.objects.filter(name=None, user=i).exists():
-                x = Company.objects.filter(name=None, user=i).update(name=serializer.validated_data.get('name'))
-
-        if not Company.objects.filter(name=serializer.validated_data.get('name')).exists():
+        else:
             self.perform_create(serializer)
+            x = serializer.validated_data.get('user')
+            # for i inn  
+            #  x:
+                # user = ISAdmin.objects.filter(username=i)
+                # for i in user:
+                #     print(i.is_admin)
+                #     i.is_admin = "A"
+                # user.is_admin = 'A'
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

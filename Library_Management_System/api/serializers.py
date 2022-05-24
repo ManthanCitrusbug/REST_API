@@ -10,13 +10,12 @@ from rest_framework.authtoken.models import Token
 from library_admin.tasks import send_mail_task
 from django.db.models import Q
 from .models import Company
-import json
 
 
 class AddCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['name', 'user']
+        fields = ['id', 'name', 'user']
 
     def validate(self, data):
         user = data.get('user')
@@ -26,63 +25,14 @@ class AddCompanySerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("User had already assign a Company.")
         return data
 
-    # def update(self, instance, validated_data):
-    #     data = super().update(instance, validated_data)
-    #     user = data.get('user')
-    #     company = data.get('name')
-    #     if Company.objects.filter(name=company).exists():
-    #         x = Company.objects.get(name=company)
-    #         x.user.add(user)
-    #     return data
-
-    # def create(self, validated_data):
-    #     user = super().create(validated_data)
-    #     mails = ['gmail', 'yopmail']
-    #     email = str(user.user.email)
-    #     start = email.index('@') + 1 
-    #     end = email.index('.')
-    #     user_mail = str(email[start:end])
-
-    #     if user_mail not in mails and Company.objects.filter(user__email__icontains=user_mail).exists():
-    #         ids = []
-    #         for i in Company.objects.filter(user__email__icontains=user_mail):
-    #             for y in i:
-    #                 ids.append(y.id)
-    #         Company.objects.filter(id=min(ids)).update(user=user.user)
-    #     else:
-    #         return user
-
-
-    # def create(self, validated_data):
-    #     user = super().create(validated_data)
-    #     users = validated_data.get('user')
-    #     print(users)
-    #     # data = User.objects.get(id=users)
-    #     # print(data)
-    #     company = validated_data.get('name')
-    #     if Company.objects.filter(Q(name=company) and ~Q(name=None)).exists():
-    #         x = Company.objects.get(name=company)
-    #         # for i in users:
-    #         x.user.add(users)
-    #         print(company)
-    #         user.save()
-    #     return user
-
-    # def save(self, **kwargs):
-    #     user = super().save(**kwargs)   
-    #     print(user.user)
-    #     if Company.objects.filter(Q(name=user.name) and ~Q(name=None)).exists():
-    #         x = Company.objects.get(name=user.name)
-    #         x.user.add(user.user)
-    #         print(user.name)
-    #     return user
-
 
 class UserSerializer(serializers.ModelSerializer):
     # company = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    company = AddCompanySerializer(many=True, read_only=True)
+    # company = serializers.SlugRelatedField(many=True, read_only=False, slug_field='name', queryset=Company.objects.all())
     # token = serializers.SerializerMethodField('get_token_key')
     # token = serializers.SerializerMethodField('create_token')
-    company = serializers.SerializerMethodField('com_details')
+    # company = serializers.SerializerMethodField('com_details')
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email','password', 'company']
@@ -92,66 +42,24 @@ class UserSerializer(serializers.ModelSerializer):
     #     token = Token.objects.get_or_create(user_id=obj.id)[0].key
     #     return token
 
-    def com_details(self, obj):
-        mails = ['gmail', 'yopmail']
-        email = str(obj.email)
-        start = email.index('@') + 1 
-        user_mail = str(email[start:])
-        if user_mail not in mails:
-            company = Company.objects.filter(user__email__icontains = user_mail)
-            com_data = AddCompanySerializer(company)
-        return json.dumps(com_data)
-
     def create(self, validated_data):
         user = super().create(validated_data)
         mails = ['gmail', 'yopmail']
         email = str(user.email)
         start = email.index('@') + 1 
-        # end = email.index('.')
-        user_mail = str(email[start:])
+        end = email.index('.')
+        user_mail = str(email[start:end])
 
         if user_mail in mails:
             user.company = None
-            # x = Company.objects.create(name=user.company)
-            # x.user.add(user)
         
         if user_mail not in mails:
             if Company.objects.filter(user__email__icontains=user_mail).count() == 0:
                 user.company = None
             else:
-                x = Company.objects.filter(user__email__icontains=user_mail).first()
-                user.company = x.name
-
-        # if user_mail not in mails:
-        #     if Company.objects.all().count() == 0:
-        #         user.company = None
-        #     elif Company.objects.filter(Q(user__email__icontains = user_mail)):
-        #         x = Company.objects.all()
-        #         user.company = x[0].name
-        
-        # if user_mail not in mails:
-        #     if Company.objects.filter(user__email__icontains=user_mail).exists():
-        #         x = Company.objects.filter(user__email__icontains=user_mail)
-        #         ids = []
-        #         for i in x:
-        #             ids.append(i.id)
-        #         data = Company.objects.get(id=min(ids))
-        #         data.user.add(user)
-        #         user.company = data.name
-        #     else:
-        #         user.company = None
-        #         x = Company.objects.create(name=user.company)
-        #         x.user.add(user)
-        
-        # if user_mail not in mails and Company.objects.filter(user__email__icontains=user_mail).exists():
-        #     ids = []
-        #     for i in Company.objects.filter(user__email__icontains=user_mail):
-        #         ids.append(i.id)
-        #     x = Company.objects.get(id=min(ids))
-        #     x.user.add(user)
-
-        # x = Company.objects.get_or_create(name=user.company)
-        # x[0].user.add(user)
+                company = Company.objects.filter(user__email__icontains = user_mail).values_list('id', flat=True)
+                y = Company.objects.filter(id=min(list(company)))
+                user.company = y
 
         user.set_password(self.validated_data['password'])
         user.is_staff = True
