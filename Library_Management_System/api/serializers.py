@@ -13,29 +13,27 @@ from .models import Company
 
 
 class AddCompanySerializer(serializers.ModelSerializer):
+    # role = serializers.ChoiceField(choices=Company.USER_TYPE, read_only=True)
     class Meta:
         model = Company
-        fields = ['id', 'name', 'user']
+        fields = '__all__'
 
     def validate(self, data):
         user = data.get('user')
-        company = data.get('name')
-        for i in user:
-            if Company.objects.filter(Q(user=i) or (~Q(name=None))).exists():
-                raise serializers.ValidationError("User had already assign a Company.")
+        if Company.objects.filter(Q(user=user) or (~Q(name=None))).exists():
+            raise serializers.ValidationError("User had already assign a Company.")
         return data
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # company = serializers.SlugRelatedField(read_only=True, slug_field='name')
     company = AddCompanySerializer(many=True, read_only=True)
+    # role = serializers.ChoiceField(choices=Company.USER_TYPE)
     # company = serializers.SlugRelatedField(many=True, read_only=False, slug_field='name', queryset=Company.objects.all())
     # token = serializers.SerializerMethodField('get_token_key')
-    # token = serializers.SerializerMethodField('create_token')
     # company = serializers.SerializerMethodField('com_details')
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email','password', 'company']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'company']
         extra_kwargs = {'password': {'write_only': True}}
 
     # def get_token_key(self, obj): 
@@ -58,6 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
                 user.company = None
             else:
                 company = Company.objects.filter(user__email__icontains = user_mail).values_list('id', flat=True)
+                print(company)
                 y = Company.objects.filter(id=min(list(company)))
                 user.company = y
 
@@ -119,9 +118,9 @@ class IssuedBookSerialize(serializers.ModelSerializer):
         Book.objects.filter(name=user.book).update(quantity=x)
         user.save()
         if user.return_date is not None:
-            # send_mail_task.delay(user.email, user.return_date)
             send_mail_task.delay(user.id)
         return user
+
 
 class IssuedBookCreateSerializer(serializers.ModelSerializer):
     book = serializers.SlugRelatedField(read_only=False, slug_field='name', queryset=Book.objects.all())

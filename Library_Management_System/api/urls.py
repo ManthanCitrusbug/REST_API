@@ -10,6 +10,7 @@ router = DefaultRouter()
 router.register('book', views.BookListAPIView, basename='book')
 router.register('author', views.AuthorListAPIView, basename='author')
 router.register('company', views.AddCompanyAPIView, basename='company')
+# router.register('user/list/', views.UserCreateListAPIView, basename='user/list/')
 
 urlpatterns = [
     path('', include(router.urls)),

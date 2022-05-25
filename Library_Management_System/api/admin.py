@@ -10,4 +10,4 @@ from django.contrib.auth.models import User
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name', 'user', 'role']
