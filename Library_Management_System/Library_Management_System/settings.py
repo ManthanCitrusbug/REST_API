@@ -168,40 +168,29 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 #SMTP Settintgs
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-SENDGRID_API_KEY = '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'
 
 EMAIL_USE_TLS = True
 # EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 587
 # EMAIL_HOST_USER = 'manthan.citrusbug@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
 # EMAIL_HOST_PASSWORD = 'vqxuaaydtzkwskbi'
 # DEFAULT_FROM_EMAIL = 'Celery <manthan.citrusbug@gmail.com>'
 SENDGRID_SANDBOX_MODE_IN_DEBUG=False
 SENDGRID_ECHO_TO_STDOUT=True
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-# SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 
-# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 # EMAIL_HOST = 'smtp.sendgrid.net'
 # EMAIL_HOST_USER = 'manthan.citrusbug@gmail.com' # this is exactly the value 'apikey'
-# EMAIL_HOST_PASSWORD = "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"
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 
-# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-
 # EMAIL_HOST = 'smtp.sendgrid.net'
-# EMAIL_HOST_USER = 'apikey' # this is exactly the value 'apikey'
-# EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # DEFAULT_FROM_EMAIL = 'Celery <manthan.citrusbug@gmail.com>'
 
 # vqxuaaydtzkwskbi
-
-# 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
