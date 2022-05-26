@@ -27,15 +27,17 @@ class UserCreateListAPIView(ListCreateAPIView):
 class AddCompanyAPIView(ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = AddCompanySerializer
-    # response_serializerr = AddCompanySerializer
+    # # response_serializerr = AddCompanySerializer
     # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAdminUser]
+    # permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if Company.objects.filter(name=serializer.validated_data.get('name')).count() == 0:
+
+        if Company.objects.filter(Q(name=serializer.validated_data.get('name'))).count() == 0:
             self.perform_create(serializer)
+            
         else:
             self.perform_create(serializer)
             x = Company.objects.filter(name=serializer.validated_data.get('name')).last()

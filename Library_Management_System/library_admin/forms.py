@@ -4,6 +4,9 @@ from django import forms
 from django.contrib.auth.models import User
 from author.models import Author
 from library_admin.models import Book, Issued_Book, Category
+from library_admin.tasks import send_mail_task
+# from Library_Management_System.settings import SENDGRID_API_KEY
+
 
 class AdminRegisterform(forms.ModelForm):
 
@@ -29,6 +32,14 @@ class AdminRegisterform(forms.ModelForm):
                 attrs={'class' : 'form-control w-50 m-auto'}
             ),    
         }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        user.is_staff = True
+        if commit:
+            user.save()
+        return user
 
 class AdminUpdateform(forms.ModelForm):
 
@@ -237,7 +248,28 @@ class Issue_Book_Edit_Form(forms.ModelForm):
             pass
         if commit:
             user.save()
-        return user
+            # if user.return_date is not None:
+            #     send_mail_task.delay(user.id)
+            #         message = Mail(
+            #             from_email = 'manthan.citrusbug@gmail.com',
+            #             to_emails = user.email,
+            #             subject = 'Returned Book on date {}'.format(user.return_date),            
+            #             plain_text_content = 'We recived the book you returned...' + 
+            #             '\n\nReturned Book Name : {}'.format(user.book) +
+            #             '\nIssued Date : {}'.format(user.issued_date) +
+            #             '\nReturn Date : {}'.format(user.return_date) +
+            #             '\nYour Total Charge : {}'.format(user.total_charge) + '₹'
+            #             ,
+            #         )
+            #         try:
+            #             sg = SendGridAPIClient(SENDGRID_API_KEY)
+            #             response = sg.send(message)
+            #             print(response.status_code)
+            #             print(response.body)
+            #             print(response.headers)
+            #         except Exception as e:
+            #             print(e)
+            return user
 
 
 class AddCategory(forms.ModelForm):

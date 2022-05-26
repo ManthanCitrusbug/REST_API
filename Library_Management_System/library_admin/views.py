@@ -34,10 +34,12 @@ class AdminLoginView(View):
         user_name = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=user_name,password=password)
+        print(user)
         if user is not None:
-            if user.is_staff == True:
-                login(request, user)
-                return redirect('library_admin:admin-dashboard')
+            print(user)
+            # if user.is_staff == True:
+            login(request, user)
+            return redirect('library_admin:admin-dashboard')
         else:
             return render(request,'admin_login.html',{'form':form}) 
 
@@ -94,7 +96,6 @@ class DeleteBookView(View):
 
     
 class IssueBookView(CreateView):
-    ordering = ["id"]
     model = Issued_Book
     form_class = Issue_Book_Form
     template_name = 'book/issue_book.html'
@@ -102,6 +103,7 @@ class IssueBookView(CreateView):
 
 
 class IssuedBooksListView(ListView):
+    ordering = ["-id"]
     paginate_by = 7
     model = Issued_Book
     context_object_name = 'books'

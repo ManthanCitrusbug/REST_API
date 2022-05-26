@@ -10,13 +10,25 @@ from rest_framework.authtoken.models import Token
 from library_admin.tasks import send_mail_task
 from django.db.models import Q
 from .models import Company
+import jwt
+import datetime
 
 
 class AddCompanySerializer(serializers.ModelSerializer):
     # role = serializers.ChoiceField(choices=Company.USER_TYPE, read_only=True)
+    # token = serializers.SerializerMethodField('get_token_key')
+    # id = serializers.SlugRelatedField(read_only=False, slug_field='name', queryset=Company.objects.all())
     class Meta:
         model = Company
-        fields = '__all__'
+        fields = ['id', 'name', 'user', 'role']
+        extra_kwargs = {'id': {'read_only': True}}
+
+    # def get_token_key(request, obj):
+    #     payload = {
+    #         'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+    #     }
+    #     token = jwt.encode(payload, 'secret', algorithm='HS256')
+    #     return token
 
     def validate(self, data):
         user = data.get('user')
@@ -26,27 +38,40 @@ class AddCompanySerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    company = AddCompanySerializer(many=True, read_only=True)
+    # company = AddCompanySerializer(many=True, read_only=True)
     # role = serializers.ChoiceField(choices=Company.USER_TYPE)
-    # company = serializers.SlugRelatedField(many=True, read_only=False, slug_field='name', queryset=Company.objects.all())
-    # token = serializers.SerializerMethodField('get_token_key')
-    # company = serializers.SerializerMethodField('com_details')
+    company = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    token = serializers.SerializerMethodField('get_token_key')
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'company']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password', 'company', 'token']
         extra_kwargs = {'password': {'write_only': True}}
 
     # def get_token_key(self, obj): 
     #     token = Token.objects.get_or_create(user_id=obj.id)[0].key
     #     return token
 
+    def validate(self, data):
+        mail = data.get('email')
+        if User.objects.filter(email=mail).exists():
+            raise serializers.ValidationError("Email must be unique.")
+        return data
+
+    def get_token_key(request, obj):
+            payload = {
+                'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+            }
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            return token
+
+
     def create(self, validated_data):
         user = super().create(validated_data)
         mails = ['gmail', 'yopmail']
         email = str(user.email)
         start = email.index('@') + 1 
-        end = email.index('.')
-        user_mail = str(email[start:end])
+        # end = email.index('.')
+        user_mail = str(email[start:])
 
         if user_mail in mails:
             user.company = None
@@ -56,8 +81,7 @@ class UserSerializer(serializers.ModelSerializer):
                 user.company = None
             else:
                 company = Company.objects.filter(user__email__icontains = user_mail).values_list('id', flat=True)
-                print(company)
-                y = Company.objects.filter(id=min(list(company)))
+                y = Company.objects.get(id=min(list(company)))
                 user.company = y
 
         user.set_password(self.validated_data['password'])

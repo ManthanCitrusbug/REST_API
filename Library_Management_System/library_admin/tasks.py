@@ -1,10 +1,11 @@
 from celery import shared_task
 from .models import Issued_Book
-from django.db.models import Q
 from django.core.mail import send_mail
 from Library_Management_System import settings
-from dateutil import parser
-
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+ 
 @shared_task(bind=True)
 def test_func(self):
     for i in range(10):
@@ -40,17 +41,44 @@ def send_mail_task(self,id):
     query = Issued_Book.objects.get(id=id)
     print(query.email)
     if query:
-        for i in query:
+        # for i in query:
             send_mail(
-                subject = 'Returned Book on date {}'.format(i.return_date),
+                subject = 'Returned Book on date {}'.format(query.return_date),
                 message = 'We recived the book you returned...' + 
-                '\n\nReturned Book Name : {}'.format(i.book) +
-                '\nIssued Date : {}'.format(i.issued_date) +
-                '\nReturn Date : {}'.format(i.return_date) +
-                '\nYour Total Charge : {}'.format(i.total_charge) + '₹'
+                '\n\nReturned Book Name : {}'.format(query.book) +
+                '\nIssued Date : {}'.format(query.issued_date) +
+                '\nReturn Date : {}'.format(query.return_date) +
+                '\nYour Total Charge : {}'.format(query.total_charge) + '₹'
                 ,
-                from_email = settings.EMAIL_HOST_USER,
-                recipient_list = [i.email],
+                from_email = 'manthanmevada45115@gmail.com',
+                recipient_list = ['manthan.citrusbug@gmail.com'],
                 fail_silently = True,
             )
     return 'Mail Send....'
+
+
+# @shared_task(bind=True)
+# def send_mail_task(self,id):
+#     query = Issued_Book.objects.get(id=id)
+#     print(query.email)
+#     message = Mail(
+#         from_email = 'manthan.citrusbug@gmail.com',
+#         to_emails = query.email,
+#         subject = 'Returned Book on date {}'.format(query.return_date),            
+#         plain_text_content = 'We recived the book you returned...' + 
+#         '\n\nReturned Book Name : {}'.format(query.book) +
+#         '\nIssued Date : {}'.format(query.issued_date) +
+#         '\nReturn Date : {}'.format(query.return_date) +
+#         '\nYour Total Charge : {}'.format(query.total_charge) + '₹'
+#         ,
+#     )
+#     sg = SendGridAPIClient(settings.EMAIL_HOST_PASSWORD)            
+#     # response = sg.send(message)
+#     sg.send(message)
+#     # try:
+#     #     print(response.status_code)
+#     #     print(response.body)
+#     #     print(response.headers)
+#     # except Exception as e:
+#     #     print(e.message)
+#     return 'Mail Send....'
